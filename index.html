@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #e0e0e0, #ffffff);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .question {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .answer-input {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .timer {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #ff5555;
+        }
+
+        .streak, .level {
+            position: absolute;
+            top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            color: #fff;
+        }
+
+        .streak {
+            right: 20px;
+        }
+
+        .level {
+            left: 20px;
+        }
+
+        .banner {
+            display: none;
+            font-size: 18px;
+            margin-top: 10px;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="level">Level: <span id="level-count">1</span></div>
+    <div class="streak">Streak: <span id="streak-count">0</span></div>
+    <div class="container">
+        <div class="question" id="question"></div>
+        <input type="number" class="answer-input" id="answer" placeholder="Your answer" />
+        <div class="timer" id="timer">15.0</div>
+        <div class="banner" id="banner">Correct!</div>
+    </div>
+
+    <script>
+        let streak = 0;
+        let level = 1;
+        let questionCount = 0;
+        let timerInterval;
+        let baseTime = 15.0;
+        let timeLeft = baseTime;
+        let correctAnswer;
+
+        function generateQuestion() {
+            const questionType = Math.random();
+            let question;
+
+            if (questionType < 0.3) {
+                // One-step linear equation
+                correctAnswer = Math.floor(Math.random() * 100) + 1;
+                const num2 = Math.floor(Math.random() * correctAnswer) + 1;
+                const sum = correctAnswer + num2;
+                question = `x + ${num2} = ${sum}`;
+            } else if (questionType < 0.6) {
+                // Multiplication
+                const num1 = Math.floor(Math.random() * 20) + 1;
+                const num2 = Math.floor(Math.random() * 20) + 1;
+                question = `${num1} × ${num2}`;
+                correctAnswer = num1 * num2;
+            } else {
+                // Addition or subtraction
+                const num1 = Math.floor(Math.random() * 100) + 1;
+                const num2 = Math.floor(Math.random() * (100 - num1)) + 1;
+                if (Math.random() < 0.5) {
+                    question = `${num1} + ${num2}`;
+                    correctAnswer = num1 + num2;
+                } else {
+                    question = `${num1} - ${num2}`;
+                    correctAnswer = num1 - num2;
+                }
+            }
+
+            document.getElementById('question').innerText = question;
+        }
+
+        function startTimer() {
+            document.getElementById('timer').innerText = timeLeft.toFixed(1);
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('timer').innerText = timeLeft.toFixed(1);
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    streak = 0;
+                    updateStreak();
+                    nextQuestion();
+                }
+            }, 100);
+        }
+
+        function updateStreak() {
+            document.getElementById('streak-count').innerText = streak;
+        }
+
+        function updateLevel() {
+            document.getElementById('level-count').innerText = level;
+        }
+
+        function nextQuestion() {
+            clearInterval(timerInterval);
+            document.getElementById('banner').style.display = 'none';
+            document.getElementById('answer').value = '';
+            timeLeft = level <= 5 ? baseTime + (level - 1) * 2 : baseTime + 8;
+            generateQuestion();
+            startTimer();
+        }
+
+        document.getElementById('answer').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const userAnswer = parseInt(this.value);
+                if (userAnswer === correctAnswer) {
+                    streak++;
+                    questionCount++;
+                    updateStreak();
+                    document.getElementById('banner').style.display = 'block';
+                    if (questionCount % 5 === 0) {
+                        level++;
+                        updateLevel();
+                    }
+                    setTimeout(() => nextQuestion(), 500);
+                }
+            }
+        });
+
+        nextQuestion();
+    </script>
+</body>
+</html>

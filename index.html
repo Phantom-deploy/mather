@@ -268,16 +268,17 @@
 
         function gameLoop() {
             if (document.getElementById('popup').style.display === 'none') {
-                timeLeft -= 0.1;
+                timeLeft -= 1; // Decrease by 1 second
                 updateTimer();
 
                 if (timeLeft <= 0) {
                     handleWrongAnswer();
                 }
             }
-
-            requestAnimationFrame(gameLoop);
         }
+
+        // Use setInterval to run gameLoop every second (1000 milliseconds)
+        setInterval(gameLoop, 1000);
 
         document.getElementById('answer').addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
@@ -297,7 +298,6 @@
         window.onload = function() {
             document.getElementById('high-score-value').innerText = highScore;
             startGame();
-            gameLoop();
         };
     </script>
 </body>
